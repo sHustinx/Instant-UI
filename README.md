@@ -6,25 +6,27 @@ We built a set of AI-assisted tools for creating, inspecting, and fixing demo pa
 
 ## What We Do
 
-InstantUI helps teams move from “we need a page for this” to a usable demo interfaces in minutes.
+InstantUI helps teams move from “we need a page for this” to a usable demo interface in minutes.
 
 It can:
 
 - create new pages from natural language requests
 - inspect app models before using object or attribute aliases
+- generate useful demo data and setup foundations
 - build dashboards, tables, charts, forms, and navigation pages
 - diagnose runtime errors from log IDs
 - fix invalid relation paths, aggregations, sorters, and chart configs
+- use browser feedback to verify and improve generated pages
 
 ## Typical Workflow
 
-1. Describe the page you want.
-2. InstantUI inspects the app model.
-3. It creates a page using existing conventions.
-4. You open it in the browser.
-5. If the page logs an error, InstantUI traces the log ID and fixes the root cause.
-
-The ExFace agent setup is organized around specialist handoffs. An overview of the possible workflows can be seen below
+1. Describe the page or demo you want.
+2. InstantUI plans the required page, data, and setup.
+3. It generates or prepares the initial data foundation.
+4. It builds the page using existing app conventions.
+5. You open the page in the browser.
+6. If the page logs an error, InstantUI traces the log ID and fixes the root cause.
+7. The page is refined until it works as a usable demo.
 
 ## Agents
 
@@ -33,35 +35,22 @@ flowchart TD
     User([User request])
 
     Planner[Project Planner Agent]
-    App[App Builder Agent]
-    Object[Object Builder Agent]
+    InitData[Init/Data Generator Agent]
     Page[Page Builder Agent]
-    SQL[SQL Migration Builder Agent]
-    Installer[InitDB Installer Agent]
-    Fixer[Page Log Remediator Agent]
+    Remediator[Remediator / Debugger Agent]
 
     User -->|describes goal| Planner
 
-    Planner -->|plans new app| App
-    Planner -->|plans data objects| Object
-    Planner -->|plans pages| Page
-    Planner -->|plans database changes| SQL
-    Planner -->|plans initial setup| Installer
-
-    App -->|creates app structure| Object
-    App -->|creates app screens| Page
-    App -->|needs schema support| SQL
-
-    Object -->|requires database check| SQL
-
-    Page -->|runtime page errors| Fixer
-    Fixer -->|repairs page model| Page
-
-    Installer -->|creates baseline schema| SQL
+    Planner -->|plans initial data and setup| InitData
+    InitData -->|provides ready data/model foundation| Page
+    Page -->|creates or updates pages| Remediator
+    Remediator -->|fixes runtime issues and feeds back improvements| Page
 ```
 
-The **Project Planner Agent** turns a request into concrete work and hands it to the right specialist.
+The **Project Planner Agent** turns the request into a concrete plan. Saves this as a plan.md document
 
-The **App Builder Agent**, **Object Builder Agent**, **Page Builder Agent**, and **SQL Migration Builder Agent** create or update the main project parts. Object changes always go through the SQL migration builder afterward.
+The **InitDB/Data Generator Agent** prepares the initial database schema and sets up test-data
 
-The **InitDB Installer Agent** handles setup and installation. The **Page Log Remediator Agent** loops back into page work when runtime errors appear.
+The **Page Builder Agent** creates or updates pages from that foundation.
+
+The **Remediator / Debugger Agent** checks runtime issues, fixes page problems, and loops improvements back into the page builder workflow.
