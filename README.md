@@ -1,4 +1,4 @@
-# Instant-UI -- Powerful Showcases. Instantly
+# Instant-UI: Powerful Showcases. Instantly
 
 InstantUI turns ideas into working demo-pages fast.
 
