@@ -24,9 +24,44 @@ It can:
 4. You open it in the browser.
 5. If the page logs an error, InstantUI traces the log ID and fixes the root cause.
 
-## Built For
+The ExFace agent setup is organized around specialist handoffs. An overview of the possible workflows can be seen below
 
-- dashboard and admin page creation
-- chart and table-heavy interfaces
-- fast prototyping with real metadata
-- debugging generated pages from runtime logs
+## Agents
+
+```mermaid
+flowchart TD
+    User([User request])
+
+    Planner[Project Planner Agent]
+    App[App Builder Agent]
+    Object[Object Builder Agent]
+    Page[Page Builder Agent]
+    SQL[SQL Migration Builder Agent]
+    Installer[InitDB Installer Agent]
+    Fixer[Page Log Remediator Agent]
+
+    User -->|describes goal| Planner
+
+    Planner -->|plans new app| App
+    Planner -->|plans data objects| Object
+    Planner -->|plans pages| Page
+    Planner -->|plans database changes| SQL
+    Planner -->|plans initial setup| Installer
+
+    App -->|creates app structure| Object
+    App -->|creates app screens| Page
+    App -->|needs schema support| SQL
+
+    Object -->|requires database check| SQL
+
+    Page -->|runtime page errors| Fixer
+    Fixer -->|repairs page model| Page
+
+    Installer -->|creates baseline schema| SQL
+```
+
+The **Project Planner Agent** turns a request into concrete work and hands it to the right specialist.
+
+The **App Builder Agent**, **Object Builder Agent**, **Page Builder Agent**, and **SQL Migration Builder Agent** create or update the main project parts. Object changes always go through the SQL migration builder afterward.
+
+The **InitDB Installer Agent** handles setup and installation. The **Page Log Remediator Agent** loops back into page work when runtime errors appear.
